@@ -236,8 +236,8 @@ void Logger::rotateLogFile()
 		int logFileIndex = it->section( QLatin1Char('.'), -1 ).toInt( &numberOk );
 		if( numberOk )
 		{
-			const auto oldFileName = QString( QStringLiteral( "%1.%2" ) ).arg( m_logFile->fileName() ).arg( logFileIndex );
-			const auto newFileName = QString( QStringLiteral( "%1.%2" ) ).arg( m_logFile->fileName() ).arg( logFileIndex + 1 );
+			const auto oldFileName = m_logFile->fileName() % QStringLiteral( "." ) % QString::number( logFileIndex );
+			const auto newFileName = m_logFile->fileName() % QStringLiteral( "." ) % QString::number( logFileIndex + 1 );
 			QFile::rename( oldFileName, newFileName );
 		}
 		else
@@ -268,12 +268,16 @@ QString Logger::formatMessage( LogLevel ll, const QString& message )
 	default: break;
 	}
 
-	return QStringLiteral( "%1.%2: [%3] [%4] %5\n" ).arg(
-				QDateTime::currentDateTime().toString( Qt::ISODate ),
-				QDateTime::currentDateTime().toString( QStringLiteral( "zzz" ) ),
-				QString::number( VeyonCore::instance()->sessionId() ),
-				messageType,
-				message.trimmed() );
+	return QDateTime::currentDateTime().toString( Qt::ISODate ) %
+		   QStringLiteral( "." ) %
+		   QDateTime::currentDateTime().toString( QStringLiteral( "zzz" ) ) %
+		   QStringLiteral( ": [" ) %
+		   QString::number( VeyonCore::instance()->sessionId() ) %
+		   QStringLiteral( "] [" ) %
+		   messageType %
+		   QStringLiteral( "] " ) %
+		   message.trimmed() %
+		   QStringLiteral( "\n" );
 }
 
 
